@@ -1,0 +1,134 @@
+---
+title: "baaplots"
+author: "Massimiliano Canzi"
+date: "15/03/2018"
+output:
+  html_document: default
+  pdf_document:
+    latex_engine: xelatex
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+theme_set(theme_minimal())
+library(lmerTest)
+library(effects)
+# install.packages("wesanderson")
+library(wesanderson)
+
+cbPalette <- c("#E69F00","#009E73","#CC79A7")
+cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+<!-- Data is filtered and 'cleaned up'. -->
+
+```{r}
+data <- read_csv('Madata.csv') %>%
+  filter(F1 < 1500) %>% filter(Vowel != 'u') %>% group_by(Speaker) %>% mutate(F0_z = scale(F0)) %>% filter(F0_z > -2) %>%
+  mutate_if(is.character, as.factor)
+```
+
+<!-- Here's lmer tests for F0, F1, F2 and Duration throughout speech modes. Speaker is regarded as random effect. The 'Long' veriable for the duration model represents phonological length. -->
+
+```{r}
+F0_lmer <- lmer(
+  F0 ~ Vowel * Mode + (1+Mode|Speaker),
+  data
+)
+summary(F0_lmer)
+```
+```{r}
+F1_lmer <- lmer(
+  F1 ~ Vowel * Mode + (1+Mode|Speaker),
+  data
+)
+summary(F1_lmer)
+```
+
+```{r}
+F2_lmer <- lmer(
+  F2 ~ Vowel * Mode + (1+Mode|Speaker),
+  data
+)
+summary(F2_lmer)
+```
+
+<!-- Duration lmer contains information for 'u' as well, which was omitted in the previous models for formant tracking issues. -->
+
+```{r}
+durData <- read_csv('Madata.csv') %>% group_by(Speaker) %>%
+  mutate_if(is.character, as.factor)
+
+Dur_lmer <- lmer(
+  Duration ~ Long * Mode + (1+Mode|Speaker),
+  durData
+)
+summary(Dur_lmer)
+```
+
+<!-- Sample effects plot for F1 -->
+
+```{r}
+plot(allEffects(F1_lmer))
+```
+
+<!-- Sample box/violin plots with jitter for F0 and Duration, faceted by gender and phonological lenth respectively -->
+
+```{r}
+F0_plot <- ggplot(data, aes(Mode, F0_z, fill = Mode)) +
+  geom_violin() +
+  geom_boxplot(width=0.2) +
+  geom_jitter(alpha=0.05) +
+  facet_grid(~Gen)
+
+print(F0_plot + scale_fill_manual(values = cbPalette))
+```
+
+```{r}
+Dur_plot <- ggplot(durData, aes(Mode, Duration, fill = Mode)) +
+  geom_violin() +
+  geom_boxplot(width=0.2) +
+  geom_jitter(alpha=0.05) +
+  facet_grid(~Long)
+
+print(Dur_plot + scale_fill_manual(values = cbPalette))
+```
+
+<!-- F1-F2 vowel plots for M and F speakers faceted by vowel, coloured by mode -->
+
+```{r}
+FM_plot <- filter(data, Gen == "M") %>%
+ggplot(aes(F2, F1, colour = Mode)) +
+  geom_point(alpha = 0.3) +
+  stat_ellipse() +
+  scale_x_reverse() +
+  scale_y_reverse() + 
+  facet_wrap(~Vowel, scales = 'free') +
+  labs(title = "F1-F2 vowel plots for male speakers in soft, neutral and loud speech modes")
+
+print(FM_plot + scale_colour_manual(values = cbPalette))
+
+```
+```{r}
+FF_plot <- filter(data, Gen == "F") %>%
+ggplot(aes(F2, F1, colour = Mode)) +
+  geom_point(alpha = 0.3) +
+  stat_ellipse() +
+  scale_x_reverse() +
+  scale_y_reverse() + 
+  facet_wrap(~Vowel, scales = 'free') +
+  labs(title = "F1-F2 vowel plots for female speakers in soft, neutral and loud speech modes")
+
+print(FF_plot + scale_colour_manual(values = cbPalette))
+```
+
+```{r}
+Dur_hist <- read_csv('Madata.csv') %>% ggplot(aes(Vowel, Duration, fill = Vowel)) +
+  geom_bar(stat = 'identity') +
+  facet_grid(~Mode)
+
+print(Dur_hist + scale_fill_manual(values = cbbPalette))
+```
+

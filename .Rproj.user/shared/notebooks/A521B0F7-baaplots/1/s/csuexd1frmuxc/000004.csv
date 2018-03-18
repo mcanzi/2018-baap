@@ -1,0 +1,21 @@
+"0","data <- read_csv('Madata.csv') %>%"
+"0","  filter(F1 < 1500) %>% filter(Vowel != 'u') %>% group_by(Speaker) %>% mutate(F0_z = scale(F0)) %>% filter(F0_z > -2) %>%"
+"0","  mutate_if(is.character, as.factor)"
+"2","Parsed with column specification:
+cols(
+  Speaker = col_integer(),
+  Gen = col_character(),
+  Mode = col_character(),
+  Vowel = col_character(),
+  Long = col_character(),
+  Duration = col_double(),
+  F0 = col_integer(),
+  F1 = col_integer(),
+  F2 = col_integer()
+)
+"
+"2","Unequal factor levels: coercing to character"
+"2","binding character and factor vector, coercing into character vector"
+"2","binding character and factor vector, coercing into character vector"
+"2","binding character and factor vector, coercing into character vector"
+"2","binding character and factor vector, coercing into character vector"

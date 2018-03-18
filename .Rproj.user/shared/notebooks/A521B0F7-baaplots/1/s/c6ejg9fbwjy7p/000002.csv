@@ -1,0 +1,17 @@
+"0","data <- read_csv('Madata.csv') %>%
+  filter(F1 < 1500) %>%
+  mutate_if(is.character, as.factor)
+"
+"2","Parsed with column specification:
+cols(
+  Speaker = col_integer(),
+  Gen = col_character(),
+  Mode = col_character(),
+  Vowel = col_character(),
+  Long = col_character(),
+  Duration = col_double(),
+  F0 = col_integer(),
+  F1 = col_integer(),
+  F2 = col_integer()
+)
+"
