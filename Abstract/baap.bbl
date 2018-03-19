@@ -1,0 +1,27 @@
+\begin{thebibliography}{}
+
+\bibitem[Elliott et~al., 2000]{Elliot-2000}
+Elliott, J. et~al. (2000).
+\newblock Comparing the acoustic properties of normal and shouted speech: a
+  study in forensic phonetics.
+\newblock In {\em Proc. SST-2000: 8th Int. Conf. Speech Sci. \& Tech}, pages
+  154--159.
+
+\bibitem[Kuznetsova et~al., 2015]{Kuznetsova-2015}
+Kuznetsova, A., Brockhoff, P.~B., and Christensen, R. H.~B. (2015).
+\newblock Package: lmer test.
+\newblock {\em R package version}, 2.
+
+\bibitem[Remez et~al., 1997]{Remez-1997}
+Remez, R.~E., Fellowes, J.~M., and Rubin, P.~E. (1997).
+\newblock Talker identification based on phonetic information.
+\newblock {\em Journal of Experimental Psychology: Human Perception and
+  Performance}, 23(3):651.
+
+\bibitem[Schulman, 1989]{Schulman-1989}
+Schulman, R. (1989).
+\newblock Articulatory dynamics of loud and normal speech.
+\newblock {\em The Journal of the Acoustical Society of America},
+  85(1):295--312.
+
+\end{thebibliography}
