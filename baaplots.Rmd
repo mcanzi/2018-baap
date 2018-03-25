@@ -15,8 +15,8 @@ library(tidyverse)
 theme_set(theme_minimal())
 library(lmerTest)
 library(effects)
-# install.packages("wesanderson")
-library(wesanderson)
+
+source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
 
 cbPalette <- c("#E69F00","#009E73","#CC79A7")
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -26,7 +26,15 @@ cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2"
 
 ```{r}
 data <- read_csv('Madata.csv') %>%
-  filter(F1 < 1500) %>% filter(Vowel != 'u') %>% group_by(Speaker) %>% mutate(F0_z = scale(F0)) %>% filter(F0_z > -2) %>%
+  filter(F1 < 1500, Vowel != 'u') %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(Speaker = as.factor(Speaker)) %>%
+  group_by(Speaker) %>%
+  mutate(F0_z = scale(F0)) %>%
+  ungroup() %>%
+  filter(F0_z > -2)
+
+durData <- read_csv('Madata.csv') %>%
   mutate_if(is.character, as.factor)
 ```
 
@@ -58,9 +66,6 @@ summary(F2_lmer)
 <!-- Duration lmer contains information for 'u' as well, which was omitted in the previous models for formant tracking issues. -->
 
 ```{r}
-durData <- read_csv('Madata.csv') %>% group_by(Speaker) %>%
-  mutate_if(is.character, as.factor)
-
 Dur_lmer <- lmer(
   Duration ~ Long * Mode + (1+Mode|Speaker),
   durData
@@ -76,24 +81,50 @@ plot(allEffects(F1_lmer))
 
 <!-- Sample box/violin plots with jitter for F0 and Duration, faceted by gender and phonological lenth respectively -->
 
-```{r}
-F0_plot <- ggplot(data, aes(Mode, F0_z, fill = Mode)) +
-  geom_violin() +
-  geom_boxplot(width=0.2) +
-  geom_jitter(alpha=0.05) +
-  facet_grid(~Gen)
+```{r f0z-plot}
+F0z_plot <- ggplot(data, aes(y = F0_z, x = Mode, fill = Mode)) +
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(aes(y = F0_z, color = Mode), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+  geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
+  expand_limits(x = 4) +
+  guides(fill = FALSE) +
+  guides(color = FALSE) +
+  coord_flip() +
+  theme_bw() + scale_fill_manual(values = cbPalette) + 
+  scale_colour_manual(values = cbPalette)
 
-print(F0_plot + scale_fill_manual(values = cbPalette))
+F0z_plot
+
+ggsave('F0zplot.png', F0z_plot)
 ```
 
 ```{r}
-Dur_plot <- ggplot(durData, aes(Mode, Duration, fill = Mode)) +
-  geom_violin() +
-  geom_boxplot(width=0.2) +
-  geom_jitter(alpha=0.05) +
-  facet_grid(~Long)
+raincloud_theme = theme(
+text = element_text(size = 10),
+axis.title.x = element_text(size = 16),
+axis.title.y = element_text(size = 16),
+axis.text = element_text(size = 14),
+axis.text.x = element_text(angle = 45, vjust = 0.5),
+legend.title=element_text(size=16),
+legend.text=element_text(size=16),
+legend.position = "right",
+plot.title = element_text(lineheight=.8, face="bold", size = 16),
+panel.border = element_blank(),
+panel.grid.minor = element_blank(),
+panel.grid.major = element_blank(),
+axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
+axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))
+```
 
-print(Dur_plot + scale_fill_manual(values = cbPalette))
+```{r}
+Dur_plot <- ggplot(durData, aes(x = Mode, y = Duration, fill = Mode)) +
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(aes(y = Duration, color = Mode), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+  geom_boxplot(width = .1, guides = FALSE, outlier.shape = NA, alpha = 0.5) +
+  theme_bw() +
+  raincloud_theme 
+
+print(Dur_plot + scale_fill_manual(values = cbPalette) + scale_colour_manual(values = cbPalette))
 ```
 
 <!-- F1-F2 vowel plots for M and F speakers faceted by vowel, coloured by mode -->
@@ -101,16 +132,17 @@ print(Dur_plot + scale_fill_manual(values = cbPalette))
 ```{r}
 FM_plot <- filter(data, Gen == "M") %>%
 ggplot(aes(F2, F1, colour = Mode)) +
-  geom_point(alpha = 0.3) +
+  geom_point(alpha = 1.0) +
   stat_ellipse() +
   scale_x_reverse() +
   scale_y_reverse() + 
   facet_wrap(~Vowel, scales = 'free') +
   labs(title = "F1-F2 vowel plots for male speakers in soft, neutral and loud speech modes")
 
-print(FM_plot + scale_colour_manual(values = cbPalette))
+print(FM_plot + scale_colour_manual(values = cbbPalette))
 
 ```
+
 ```{r}
 FF_plot <- filter(data, Gen == "F") %>%
 ggplot(aes(F2, F1, colour = Mode)) +
@@ -121,14 +153,31 @@ ggplot(aes(F2, F1, colour = Mode)) +
   facet_wrap(~Vowel, scales = 'free') +
   labs(title = "F1-F2 vowel plots for female speakers in soft, neutral and loud speech modes")
 
-print(FF_plot + scale_colour_manual(values = cbPalette))
+print(FF_plot + scale_colour_manual(values = cbbPalette))
 ```
 
 ```{r}
-Dur_hist <- read_csv('Madata.csv') %>% ggplot(aes(Vowel, Duration, fill = Vowel)) +
-  geom_bar(stat = 'identity') +
-  facet_grid(~Mode)
+interSoft <- filter(data, Mode =='Loud') %>% filter(Gen == 'M') %>%
+                    ggplot(aes(F2, F1, colour = Speaker)) +
+                    geom_point(alpha = 0.3) + 
+                    stat_ellipse() +
+                    scale_x_reverse() +
+                    scale_y_reverse() + 
+                    facet_wrap(~Vowel, scales = 'free') 
 
-print(Dur_hist + scale_fill_manual(values = cbbPalette))
+print(interSoft + scale_colour_manual(values = cbbPalette))
 ```
+
+```{r}
+interLoudM <- filter(data, Mode =='Neutral') %>% filter(Gen == 'M') %>%
+                    ggplot(aes(F2, F1, colour = Speaker)) +
+                    geom_point(alpha = 1) + 
+                    stat_ellipse() +
+                    scale_x_reverse() +
+                    scale_y_reverse() + 
+                    facet_wrap(~Vowel, scales = 'free') 
+
+print(interLoudM + scale_colour_manual(values = cbbPalette))
+```
+
 
