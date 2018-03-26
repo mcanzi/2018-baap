@@ -18,6 +18,7 @@ library(effects)
 
 source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
 
+cPalette <- c("#0072B2", "#CC79A7")
 cbPalette <- c("#0072B2","#009E73","#CC79A7")
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 ```
@@ -141,29 +142,33 @@ ggsave('durPlot.png', Dur_plot)
 <!-- F1-F2 vowel plots for M and F speakers faceted by vowel, coloured by mode -->
 
 ```{r vowelMalePlot}
-FM_plot <- filter(data, Gen == "M") %>%
+FM_plot <- filter(data, Gen == "M") %>% filter(Mode != 'Soft') %>%
 ggplot(aes(F2, F1, colour = Mode)) +
   geom_point(alpha = 1.0) +
   stat_ellipse() +
   scale_x_reverse() +
   scale_y_reverse() + 
-  facet_wrap(~Vowel, scales = 'free') +
-  labs(title = "F1-F2 vowel plots for male speakers in soft, neutral and loud speech modes")
+  facet_wrap(~Vowel, scales = 'free') + 
+  scale_colour_manual(values = cPalette) +
+  labs(title = "F1-F2 vowel plots for male speakers in neutral and and loud speech") 
 
-print(FM_plot + scale_colour_manual(values = cbbPalette))
+FM_plot
+ggsave('vowelPlotMale.png', FM_plot)
 ```
 
 ```{r vowelFPlot}
-FF_plot <- filter(data, Gen == "F") %>%
+FF_plot <- filter(data, Gen == "F") %>% filter(Mode != 'Soft') %>%
 ggplot(aes(F2, F1, colour = Mode)) +
-  geom_point(alpha = 0.3) +
+  geom_point(alpha = 1) +
   stat_ellipse() +
   scale_x_reverse() +
   scale_y_reverse() + 
   facet_wrap(~Vowel, scales = 'free') +
-  labs(title = "F1-F2 vowel plots for female speakers in soft, neutral and loud speech modes")
-
-print(FF_plot + scale_colour_manual(values = cbbPalette))
+  labs(title = "F1-F2 vowel plots for female speakers in neutral and loud speech") +
+  scale_colour_manual(values = cPalette)
+  
+FF_plot
+ggsave('VowelPlotFemale.png', FF_plot)
 ```
 
 ```{r interSoftM}
