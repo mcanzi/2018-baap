@@ -58,7 +58,7 @@ summary(F1_lmer)
 
 ```{r F2lmer }
 F2_lmer <- lmer(
-  F2 ~ Vowel * Mode + (1+Mode|Speaker),
+  F2 ~ Mode * Vowel + (1+Mode|Speaker),
   data
 )
 summary(F2_lmer)
@@ -77,7 +77,7 @@ summary(Dur_lmer)
 <!-- Sample effects plot for F1 -->
 
 ```{r allEffectsF1}
-plot(allEffects(F1_lmer))
+plot(allEffects(F2_lmer))
 ```
 
 ```{r rainCloudTheme}
@@ -169,6 +169,47 @@ ggplot(aes(F2, F1, colour = Mode)) +
   
 FF_plot
 ggsave('VowelPlotFemale.png', FF_plot)
+```
+
+```{r sampleIA}
+
+sample_F1 <- filter(data, Gen == 'M') %>% filter(Vowel %in% c('i', 'a')) %>% 
+  ggplot(aes(y = F1, x = Mode, fill = Mode)) +
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(aes(y = F1, color = Speaker), position = position_jitter(width = .15), size = .5, alpha = 1) + stat_ellipse() +
+  geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
+  expand_limits(x = 4) +
+  guides(fill = FALSE) +
+  # guides(color = FALSE) +
+  coord_flip() +
+  facet_grid(~Vowel) +
+  theme_bw() + scale_fill_manual(values = cbPalette) +
+  labs(title = 'F1 for /a/ and /i/ by male speakers in soft, neutral and loud speech') +
+  scale_colour_manual(values = cbbPalette)
+
+sample_F1
+ggsave('sampleF1ai.png', sample_F1)
+```
+
+```{r sampleIAF2}
+
+sample_F2 <- filter(data, Gen == 'M') %>% filter(Vowel %in% c('e')) %>% filter(Speaker %in% c('1', '2', '3')) %>% 
+  ggplot(aes(y = F2, x = Mode, fill = Mode)) +
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(aes(y = F2, color = Mode), position = position_jitter(width = .15), size = .5, alpha = 1) +
+  geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
+  expand_limits(x = 4) +
+  guides(colour = FALSE) +
+  guides(fill = FALSE) +
+  # guides(color = FALSE) +
+  coord_flip() +
+  facet_grid(~Speaker) +
+  theme_bw() + scale_fill_manual(values = cbPalette) +
+  labs(title = 'F2 for /e/ by male speakers 1, 2 and 3 in soft, neutral and loud speech') +
+  scale_colour_manual(values = cbPalette)
+
+sample_F2
+ggsave('sampleF2ai.png', sample_F2)
 ```
 
 ```{r interSoftM}
