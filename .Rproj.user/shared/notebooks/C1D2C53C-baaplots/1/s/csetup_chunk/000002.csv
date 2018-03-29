@@ -1,0 +1,52 @@
+"0","knitr::opts_chunk$set(echo = TRUE)"
+"0","library(tidyverse)"
+"2","[37m── [1mAttaching packages[22m ──────────────────────────────────────────────────── tidyverse 1.2.1 ──[39m
+"
+"2","[37m[32m✔[37m [34mggplot2[37m 2.2.1     [32m✔[37m [34mpurrr  [37m 0.2.4
+[32m✔[37m [34mtibble [37m 1.3.4     [32m✔[37m [34mdplyr  [37m 0.7.4
+[32m✔[37m [34mtidyr  [37m 0.7.2     [32m✔[37m [34mstringr[37m 1.2.0
+[32m✔[37m [34mreadr  [37m 1.1.1     [32m✔[37m [34mforcats[37m 0.2.0[39m
+"
+"2","[37m── [1mConflicts[22m ─────────────────────────────────────────────────────── tidyverse_conflicts() ──
+[31m✖[37m [34mdplyr[37m::[32mfilter()[37m masks [34mstats[37m::filter()
+[31m✖[37m [34mdplyr[37m::[32mlag()[37m    masks [34mstats[37m::lag()[39m
+"
+"0","theme_set(theme_minimal())"
+"0","library(lmerTest)"
+"2","Loading required package: Matrix
+"
+"2","
+Attaching package: ‘Matrix’
+
+"
+"2","The following object is masked from ‘package:tidyr’:
+
+    expand
+
+"
+"2","Loading required package: lme4
+"
+"2","
+Attaching package: ‘lmerTest’
+
+"
+"2","The following object is masked from ‘package:lme4’:
+
+    lmer
+
+"
+"2","The following object is masked from ‘package:stats’:
+
+    step
+
+"
+"0","library(effects)"
+"2","Loading required package: carData
+"
+"2","lattice theme set by effectsTheme()
+See ?effectsTheme for details.
+"
+"0","source(""https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R"")"
+"0","cPalette <- c(""#0072B2"", ""#CC79A7"")"
+"0","cbPalette <- c(""#0072B2"",""#009E73"",""#CC79A7"")"
+"0","cbbPalette <- c(""#000000"", ""#E69F00"", ""#56B4E9"", ""#009E73"", ""#F0E442"", ""#0072B2"", ""#D55E00"", ""#CC79A7"")"

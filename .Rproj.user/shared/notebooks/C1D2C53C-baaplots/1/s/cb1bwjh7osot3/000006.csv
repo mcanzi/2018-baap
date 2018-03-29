@@ -1,0 +1,8 @@
+"0","interLoudM <- filter(data, Mode =='Loud') %>% filter(Gen == 'M') %>%"
+"0","                    ggplot(aes(F2, F1, colour = Speaker)) +"
+"0","                    geom_point(alpha = 1) + "
+"0","                    stat_ellipse() +"
+"0","                    scale_x_reverse() +"
+"0","                    scale_y_reverse() + "
+"0","                    facet_wrap(~Vowel, scales = 'free') "
+"0","print(interLoudM + scale_colour_manual(values = cbbPalette))"

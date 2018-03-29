@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1522062168977.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3298777755",
+    "id" : "FC42F9DC",
+    "lastKnownWriteTime" : 1522256937,
+    "last_content_update" : 1522256937242,
+    "path" : "~/Dropbox/UNI/PhD/Conferences/BAAP/baaplots.Rmd",
+    "project_path" : "baaplots.Rmd",
+    "properties" : {
+        "cursorPosition" : "207,4",
+        "last_setup_crc32" : "E9BE369Bc516ca56",
+        "scrollLine" : "196"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

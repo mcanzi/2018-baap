@@ -1,0 +1,239 @@
+---
+title: "baaplots"
+author: "Massimiliano Canzi"
+date: "15/03/2018"
+output:
+  html_document: default
+  pdf_document:
+    latex_engine: xelatex
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+theme_set(theme_minimal())
+library(lmerTest)
+library(effects)
+
+source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
+
+cPalette <- c("#0072B2", "#CC79A7")
+cbPalette <- c("#0072B2","#009E73","#CC79A7")
+cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+<!-- Data is filtered and 'cleaned up'. -->
+
+```{r filters}
+data <- read_csv('Madata.csv') %>%
+  filter(F1 < 1500, Vowel != 'u') %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(Speaker = as.factor(Speaker)) %>%
+  group_by(Speaker) %>%
+  mutate(F0_z = scale(F0)) %>%
+  ungroup() %>%
+  filter(F0_z > -2)
+
+durData <- read_csv('Madata.csv') %>%
+  mutate_if(is.character, as.factor)
+```
+
+<!-- Here's lmer tests for F0, F1, F2 and Duration throughout speech modes. Speaker is regarded as random effect. The 'Long' veriable for the duration model represents phonological length. -->
+
+```{r F0lmer}
+F0_lmer <- lmer(
+  F0 ~ Vowel * Mode + (1+Mode|Speaker),
+  data
+)
+summary(F0_lmer)
+```
+```{r F1lmer}
+F1_lmer <- lmer(
+  F1 ~ Vowel * Mode + (1+Mode|Speaker),
+  data
+)
+summary(F1_lmer)
+```
+
+```{r F2lmer }
+F2_lmer <- lmer(
+  F2 ~ Mode * Vowel + (1+Mode|Speaker),
+  data
+)
+summary(F2_lmer)
+```
+
+<!-- Duration lmer contains information for 'u' as well, which was omitted in the previous models for formant tracking issues. -->
+
+```{r durlmer}
+Dur_lmer <- lmer(
+  Duration ~ Long * Mode + (1+Mode|Speaker),
+  durData
+)
+summary(Dur_lmer)
+```
+
+<!-- Sample effects plot for F1 -->
+
+```{r allEffectsF1}
+plot(allEffects(F2_lmer))
+```
+
+```{r rainCloudTheme}
+raincloud_theme = theme(
+text = element_text(size = 10),
+axis.title.x = element_text(size = 16),
+axis.title.y = element_text(size = 16),
+axis.text = element_text(size = 14),
+axis.text.x = element_text(angle = 45, vjust = 0.5),
+legend.title=element_text(size=16),
+legend.text=element_text(size=16),
+legend.position = "right",
+plot.title = element_text(lineheight=.8, face="bold", size = 16),
+panel.border = element_blank(),
+panel.grid.minor = element_blank(),
+panel.grid.major = element_blank(),
+axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
+axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))
+```
+
+<!-- Sample box/violin plots with jitter for F0 and Duration, faceted by gender and phonological lenth respectively -->
+
+```{r f0z-plot}
+F0z_plot <- ggplot(data, aes(y = F0_z, x = Mode, fill = Mode)) +
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(aes(y = F0_z, color = Mode), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+  geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
+  expand_limits(x = 4) +
+  guides(fill = FALSE) +
+  guides(color = FALSE) +
+  coord_flip() +
+  theme_bw() + scale_fill_manual(values = cbPalette) + 
+  labs(title = "Scaled F0 in soft, neutral and loud speech") +
+  scale_colour_manual(values = cbPalette)
+
+F0z_plot
+
+ggsave('F0zplot.png', F0z_plot)
+```
+
+
+
+```{r dur-Plot}
+Dur_plot <- ggplot(durData, aes(y = Duration, x = Mode, fill = Mode)) +
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(aes(y = Duration, color = Mode), position = position_jitter(width = .15), size = .5, alpha = 0.8) +
+  geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
+  expand_limits(x = 4) +
+  guides(fill = FALSE) +
+  guides(color = FALSE) +
+  coord_flip() +
+  theme_bw() + scale_fill_manual(values = cbPalette) + 
+  facet_grid(~Long) +
+  labs(title = 'Vowel Duration in soft, neutral and loud speech in Seconds') +
+  scale_colour_manual(values = cbPalette)
+
+Dur_plot
+
+ggsave('durPlot.png', Dur_plot)
+```
+
+<!-- F1-F2 vowel plots for M and F speakers faceted by vowel, coloured by mode -->
+
+```{r vowelMalePlot}
+FM_plot <- filter(data, Gen == "M") %>% filter(Mode != 'Soft') %>%
+ggplot(aes(F2, F1, colour = Mode)) +
+  geom_point(alpha = 1.0) +
+  stat_ellipse() +
+  scale_x_reverse() +
+  scale_y_reverse() + 
+  facet_wrap(~Vowel, scales = 'free') + 
+  scale_colour_manual(values = cPalette) 
+  # + labs(title = "F1-F2 vowel plots for male speakers in neutral and and loud speech") 
+ 
+FM_plot
+ggsave('vowelPlotMale.png', FM_plot)
+```
+
+```{r vowelFPlot}
+FF_plot <- filter(data, Gen == "F") %>% filter(Mode != 'Soft') %>%
+ggplot(aes(F2, F1, colour = Mode)) +
+  geom_point(alpha = 1) +
+  stat_ellipse() +
+  scale_x_reverse() +
+  scale_y_reverse() + 
+  facet_wrap(~Vowel, scales = 'free') +
+  # labs(title = "F1-F2 vowel plots for female speakers in neutral and loud speech") +
+  scale_colour_manual(values = cPalette)
+  
+FF_plot
+ggsave('VowelPlotFemale.png', FF_plot)
+```
+
+```{r sampleIA}
+
+sample_F1 <- filter(data, Gen == 'M') %>% filter(Vowel %in% c('i', 'a')) %>% 
+  ggplot(aes(y = F1, x = Mode, fill = Mode)) +
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(aes(y = F1, color = Speaker), position = position_jitter(width = .15), size = .5, alpha = 1) + stat_ellipse() +
+  geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
+  expand_limits(x = 4) +
+  guides(fill = FALSE) +
+  guides(color = FALSE) +
+  coord_flip() +
+  facet_grid(~Vowel) +
+  theme_bw() + scale_fill_manual(values = cbPalette) +
+  # labs(title = 'F1 for /a/ and /i/ by male speakers in soft, neutral and loud speech') +
+  scale_colour_manual(values = cbbPalette)
+
+sample_F1
+ggsave('sampleF1ai.png', sample_F1)
+```
+
+```{r sampleIAF2}
+
+sample_F2 <- filter(data, Gen == 'M') %>% filter(Vowel %in% c('e')) %>% filter(Speaker %in% c('1', '2', '3')) %>% 
+  ggplot(aes(y = F2, x = Mode, fill = Mode)) +
+  geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8) +
+  geom_point(aes(y = F2, color = Mode), position = position_jitter(width = .15), size = .5, alpha = 1) +
+  geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
+  expand_limits(x = 4) +
+  guides(colour = FALSE) +
+  guides(fill = FALSE) +
+  guides(color = FALSE) +
+  coord_flip() +
+  facet_grid(~Speaker) +
+  theme_bw() + scale_fill_manual(values = cbPalette) +
+  # labs(title = 'F2 for /e/ by male speakers 1, 2 and 3 in soft, neutral and loud speech') +
+  scale_colour_manual(values = cbPalette)
+
+sample_F2
+ggsave('sampleF2ai.png', sample_F2)
+```
+
+```{r interSoftM}
+interSoft <- filter(data, Mode =='Soft') %>% filter(Gen == 'M') %>%
+                    ggplot(aes(F2, F1, colour = Speaker)) +
+                    geom_point(alpha = 1) + 
+                    stat_ellipse() +
+                    scale_x_reverse() +
+                    scale_y_reverse() + 
+                    facet_wrap(~Vowel, scales = 'free') 
+
+print(interSoft + scale_colour_manual(values = cbbPalette))
+```
+
+```{r interLoudM}
+interLoudM <- filter(data, Mode =='Loud') %>% filter(Gen == 'M') %>%
+                    ggplot(aes(F2, F1, colour = Speaker)) +
+                    geom_point(alpha = 1) + 
+                    stat_ellipse() +
+                    scale_x_reverse() +
+                    scale_y_reverse() + 
+                    facet_wrap(~Vowel, scales = 'free') 
+
+print(interLoudM + scale_colour_manual(values = cbbPalette))
+```
+
+
