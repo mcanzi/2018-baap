@@ -26,7 +26,7 @@ cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2"
 <!-- Data is filtered and 'cleaned up'. -->
 
 ```{r filters}
-data <- read_csv('Madata.csv') %>%
+data <- read_csv('MAdata.csv') %>%
   filter(F1 < 1500, Vowel != 'u') %>%
   mutate_if(is.character, as.factor) %>%
   mutate(Speaker = as.factor(Speaker)) %>%
@@ -35,7 +35,7 @@ data <- read_csv('Madata.csv') %>%
   ungroup() %>%
   filter(F0_z > -2)
 
-durData <- read_csv('Madata.csv') %>%
+durData <- read_csv('MAdata.csv') %>%
   mutate_if(is.character, as.factor)
 ```
 
@@ -115,7 +115,7 @@ F0z_plot <- ggplot(data, aes(y = F0_z, x = Mode, fill = Mode)) +
 
 F0z_plot
 
-ggsave('F0zplot.png', F0z_plot)
+ggsave('plots/F0zplot.png', F0z_plot)
 ```
 
 
@@ -136,7 +136,7 @@ Dur_plot <- ggplot(durData, aes(y = Duration, x = Mode, fill = Mode)) +
 
 Dur_plot
 
-ggsave('durPlot.png', Dur_plot)
+ggsave('plots/durPlot.png', Dur_plot)
 ```
 
 <!-- F1-F2 vowel plots for M and F speakers faceted by vowel, coloured by mode -->
@@ -153,7 +153,7 @@ ggplot(aes(F2, F1, colour = Mode)) +
   # + labs(title = "F1-F2 vowel plots for male speakers in neutral and and loud speech") 
  
 FM_plot
-ggsave('vowelPlotMale.png', FM_plot)
+ggsave('plots/vowelPlotMale.png', FM_plot)
 ```
 
 ```{r vowelFPlot}
@@ -168,7 +168,7 @@ ggplot(aes(F2, F1, colour = Mode)) +
   scale_colour_manual(values = cPalette)
   
 FF_plot
-ggsave('VowelPlotFemale.png', FF_plot)
+ggsave('plots/VowelPlotFemale.png', FF_plot)
 ```
 
 ```{r sampleIA}
@@ -188,7 +188,7 @@ sample_F1 <- filter(data, Gen == 'M') %>% filter(Vowel %in% c('i', 'a')) %>%
   scale_colour_manual(values = cbbPalette)
 
 sample_F1
-ggsave('sampleF1ai.png', sample_F1)
+ggsave('plots/sampleF1ai.png', sample_F1)
 ```
 
 ```{r sampleIAF2}
@@ -209,7 +209,7 @@ sample_F2 <- filter(data, Gen == 'M') %>% filter(Vowel %in% c('e')) %>% filter(S
   scale_colour_manual(values = cbPalette)
 
 sample_F2
-ggsave('sampleF2ai.png', sample_F2)
+ggsave('plots/sampleF2ai.png', sample_F2)
 ```
 
 ```{r interSoftM}
