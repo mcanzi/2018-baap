@@ -149,9 +149,9 @@ ggplot(aes(F2, F1, colour = Mode)) +
   scale_x_reverse() +
   scale_y_reverse() + 
   facet_wrap(~Vowel, scales = 'free') + 
-  scale_colour_manual(values = cPalette) +
-  labs(title = "F1-F2 vowel plots for male speakers in neutral and and loud speech") 
-
+  scale_colour_manual(values = cPalette) 
+  # + labs(title = "F1-F2 vowel plots for male speakers in neutral and and loud speech") 
+ 
 FM_plot
 ggsave('vowelPlotMale.png', FM_plot)
 ```
@@ -164,7 +164,7 @@ ggplot(aes(F2, F1, colour = Mode)) +
   scale_x_reverse() +
   scale_y_reverse() + 
   facet_wrap(~Vowel, scales = 'free') +
-  labs(title = "F1-F2 vowel plots for female speakers in neutral and loud speech") +
+  # labs(title = "F1-F2 vowel plots for female speakers in neutral and loud speech") +
   scale_colour_manual(values = cPalette)
   
 FF_plot
@@ -180,11 +180,11 @@ sample_F1 <- filter(data, Gen == 'M') %>% filter(Vowel %in% c('i', 'a')) %>%
   geom_boxplot(width = .1, outlier.shape = NA, alpha = 0.5) +
   expand_limits(x = 4) +
   guides(fill = FALSE) +
-  # guides(color = FALSE) +
+  guides(color = FALSE) +
   coord_flip() +
   facet_grid(~Vowel) +
   theme_bw() + scale_fill_manual(values = cbPalette) +
-  labs(title = 'F1 for /a/ and /i/ by male speakers in soft, neutral and loud speech') +
+  # labs(title = 'F1 for /a/ and /i/ by male speakers in soft, neutral and loud speech') +
   scale_colour_manual(values = cbbPalette)
 
 sample_F1
@@ -201,11 +201,11 @@ sample_F2 <- filter(data, Gen == 'M') %>% filter(Vowel %in% c('e')) %>% filter(S
   expand_limits(x = 4) +
   guides(colour = FALSE) +
   guides(fill = FALSE) +
-  # guides(color = FALSE) +
+  guides(color = FALSE) +
   coord_flip() +
   facet_grid(~Speaker) +
   theme_bw() + scale_fill_manual(values = cbPalette) +
-  labs(title = 'F2 for /e/ by male speakers 1, 2 and 3 in soft, neutral and loud speech') +
+  # labs(title = 'F2 for /e/ by male speakers 1, 2 and 3 in soft, neutral and loud speech') +
   scale_colour_manual(values = cbPalette)
 
 sample_F2
